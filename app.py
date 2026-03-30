@@ -4,25 +4,20 @@ import google.generativeai as genai
 # --- 画面のUI設定 ---
 st.set_page_config(page_title="ワイン名ゆらぎ生成", page_icon="🍷")
 st.title("🍷 ワイン名表記ゆらぎ自動生成ツール")
-st.write("商品名を入力すると、AIが検索用の表記ゆらぎ（アルファベットの原語表記を含む）を自動生成します。")
-
-# --- APIキーの入力欄（サイドバーに配置してスッキリと） ---
-with st.sidebar:
-    st.header("⚙️ 設定")
-    api_key = st.text_input("Gemini APIキーを入力:", type="password", help="Google AI Studioで取得したAPIキーを入力してください。")
-    st.caption("※セキュリティのため、APIキーは保存されません。")
+st.write("商品名を入力してください。AIが検索用の表記ゆらぎ（アルファベットの原語表記を含む）を自動生成します。")
 
 # --- メイン画面 ---
-wine_name = st.text_input("商品名（カタカナ等）を入力してください:", placeholder="例：アルマヴィーヴァ")
+wine_name = st.text_input("商品名（カタカナ等）を入力してください:", placeholder="例：ロマネコンティ")
 
 # ボタンが押されたときの処理
 if st.button("ゆらぎパターンを生成", type="primary"):
-    if not api_key:
-        st.warning("👈 左側のサイドバーにGemini APIキーを入力してください。")
-    elif not wine_name:
+    if not wine_name:
         st.warning("ワイン名を入力してください。")
     else:
         try:
+            # ★ここでStreamlitの金庫（Secrets）からAPIキーをこっそり取り出します
+            api_key = st.secrets["GOOGLE_API_KEY"]
+            
             # AIの準備と実行
             genai.configure(api_key=api_key)
             model = genai.GenerativeModel('gemini-2.5-flash')
@@ -49,4 +44,4 @@ if st.button("ゆらぎパターンを生成", type="primary"):
             st.text_area("検索用キーワード（OR検索用などにコピーしてお使いください）：", value=result, height=100)
             
         except Exception as e:
-            st.error(f"エラーが発生しました。APIキーが正しいか確認してください。（エラー詳細: {e}）")
+            st.error(f"エラーが発生しました。設定を確認してください。（エラー詳細: {e}）")
